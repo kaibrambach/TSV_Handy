@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TSV Wieblingen – Elfmeterturnier Live</title>
+<style>
+:root{
+  --club-blue:#2f327e;
+  --club-blue-2:#40458f;
+  --club-blue-3:#eef1ff;
+  --club-blue-4:#dfe4ff;
+  --club-ink:#1f2255;
+  --white:#ffffff;
+  --bg:#f5f7ff;
+  --line:#c8d0ff;
+  --muted:#61679a;
+  --success:#1f7a4e;
+  --shadow:0 12px 32px rgba(47,50,126,.14);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  color:var(--club-ink);
+  background:radial-gradient(circle at top, #ffffff 0%, #eef2ff 45%, #e8ecff 100%);
+}
+header{
+  position:sticky;top:0;z-index:20;
+  display:flex;justify-content:space-between;align-items:center;gap:18px;
+  padding:16px 22px;
+  background:rgba(255,255,255,.94);
+  backdrop-filter:blur(10px);
+  border-bottom:2px solid var(--line);
+}
+.header-left{display:flex;align-items:center;gap:16px;min-width:0}
+.logo{
+  width:78px;height:78px;object-fit:contain;border-radius:50%;background:#fff;
+  border:2px solid var(--line);box-shadow:var(--shadow);flex:0 0 auto;
+}
+.title-wrap{min-width:0}
+h1{margin:0;font-size:32px;line-height:1.05;color:var(--club-blue)}
+.subtitle{margin-top:6px;color:var(--muted);font-size:15px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+button{
+  border:none;border-radius:12px;padding:11px 16px;font-weight:700;cursor:pointer;
+  background:var(--club-blue);color:#fff;box-shadow:var(--shadow)
+}
+button.secondary{background:#fff;color:var(--club-blue);border:2px solid var(--club-blue)}
+.setup{
+  margin:18px 18px 0;background:rgba(255,255,255,.92);border:2px solid var(--line);
+  border-radius:24px;padding:18px 20px;box-shadow:var(--shadow)
+}
+.setup.hidden{display:none}
+.setup h2{margin:0 0 14px 0;color:var(--club-blue)}
+.setup-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+label{font-size:13px;font-weight:700;color:var(--muted);display:block;margin-bottom:6px}
+input{
+  width:100%;padding:11px 12px;border-radius:12px;border:2px solid var(--line);
+  background:#fff;color:var(--club-ink);font-size:15px
+}
+.note{
+  margin-top:14px;padding:12px 14px;background:var(--club-blue-3);border-radius:14px;
+  border:1px solid var(--line);font-size:14px;color:var(--club-ink)
+}
+.main{
+  display:grid;grid-template-columns:1fr 1fr 1.05fr;gap:18px;padding:18px;
+}
+.card{
+  background:rgba(255,255,255,.95);border:2px solid var(--line);border-radius:24px;
+  padding:18px;box-shadow:var(--shadow)
+}
+.card h2{margin:0 0 14px 0;font-size:26px;color:var(--club-blue)}
+.section-title{
+  display:flex;align-items:center;justify-content:space-between;margin:20px 0 10px 0;
+}
+.section-title h3{margin:0;font-size:20px;color:var(--club-blue)}
+.badge{display:inline-block;padding:5px 10px;border-radius:999px;background:var(--club-blue-3);color:var(--club-blue);font-weight:700;font-size:12px}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px 10px;border-bottom:1px solid #e5e9ff;text-align:left}
+th{font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+td{font-size:17px}
+.rank{width:44px;text-align:center;font-weight:700}
+.points{font-weight:800;color:var(--club-blue)}
+.matches{display:grid;gap:10px}
+.match{
+  border:2px solid var(--line);border-radius:18px;padding:12px 14px;background:linear-gradient(180deg,#fff,#f8f9ff)
+}
+.match-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:8px;color:var(--muted);font-size:13px;font-weight:700}
+.teams-row{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center}
+.team-right{text-align:right}
+.score{font-size:24px;font-weight:800;color:var(--club-blue);min-width:82px;text-align:center}
+.winner{margin-top:8px;color:var(--success);font-weight:700;font-size:14px}
+.muted{color:var(--muted)}
+.qualified-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.seed{
+  background:var(--club-blue-3);border:1px solid var(--line);border-radius:16px;padding:10px 12px
+}
+.seed .seed-label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase}
+.seed .seed-team{margin-top:5px;font-weight:800;color:var(--club-blue)}
+.final-grid{display:grid;gap:10px}
+.hero{margin-top:10px;
+  margin:0 18px 0;padding:14px 18px;border:2px solid var(--line);border-radius:24px;
+  background:linear-gradient(90deg,#ffffff,#eef1ff);display:flex;justify-content:space-between;gap:18px;align-items:center
+}
+.hero-text{font-size:15px;color:var(--muted)}
+.hero strong{color:var(--club-blue)}
+footer{padding:0 18px 18px}
+.status{
+  margin-top:18px;padding:14px 16px;background:rgba(255,255,255,.95);border:2px solid var(--line);border-radius:18px;
+  color:var(--muted);font-size:14px;box-shadow:var(--shadow)
+}
+@media (max-width:1300px){
+  .main{grid-template-columns:1fr}
+  .setup-grid{grid-template-columns:1fr 1fr}
+}
+@media (max-width:760px){
+  header{flex-direction:column;align-items:flex-start}
+  .controls{justify-content:flex-start}
+  .setup-grid{grid-template-columns:1fr}
+  h1{font-size:26px}
+  .logo{width:64px;height:64px}
+}
+</style>
+</head>
+<body>
+<section class="hero">
+  <div class="hero-text"><strong>Vorlage abgestimmt auf deine Google-Sheets-Datei:</strong> Teams · Spiele · Tabellen · Finalrunde</div>
+  <div class="badge">TSV Wieblingen Design</div>
+</section>
+
+<section id="setup" class="setup hidden">
+  <h2>Google Sheets verbinden</h2>
+  <div class="setup-grid">
+    <div>
+      <label for="spreadsheetId">Spreadsheet-ID</label>
+      <input id="spreadsheetId" placeholder="1AbCdEf...">
+    </div>
+    <div>
+      <label for="teamsSheet">Teams-Blattname</label>
+      <input id="teamsSheet" value="Teams">
+    </div>
+    <div>
+      <label for="matchesSheet">Spiele-Blattname</label>
+      <input id="matchesSheet" value="Spiele">
+    </div>
+    <div>
+      <label for="finalSheet">Finalrunde-Blattname</label>
+      <input id="finalSheet" value="Finalrunde">
+    </div>
+    <div>
+      <label for="refreshSeconds">Auto-Refresh in Sekunden</label>
+      <input id="refreshSeconds" value="15">
+    </div>
+  </div>
+  <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+    <button onclick="saveConfig()">Verbindung speichern</button>
+    <button class="secondary" onclick="fillDefaults()">Standardwerte setzen</button>
+  </div>
+  <div class="note">
+    Die Datei ist auf die Vorlage <strong>Teams</strong>, <strong>Spiele</strong>, <strong>Tabellen</strong> und <strong>Finalrunde</strong> abgestimmt. 
+    Die K.-o.-Partien werden direkt aus dem Blatt <strong>Finalrunde</strong> gelesen. Der Spielplan der Gruppenphase wird für die Anzeige automatisch im Wechsel <strong>A / B / A / B</strong> dargestellt.
+  </div>
+</section>
+
+<section class="main">
+  <article class="card">
+    <h2>Gruppe A</h2>
+    <div id="tableA" class="table-wrap"></div>
+    <div class="section-title"><h3>Spiele Gruppe A</h3><span class="badge">15 Spiele</span></div>
+    <div id="matchesA" class="matches"></div>
+  </article>
+
+  <article class="card">
+    <h2>Gruppe B</h2>
+    <div id="tableB" class="table-wrap"></div>
+    <div class="section-title"><h3>Spiele Gruppe B</h3><span class="badge">15 Spiele</span></div>
+    <div id="matchesB" class="matches"></div>
+  </article>
+
+  <article class="card">
+    <h2>Finalrunde</h2>
+    <div class="section-title"><h3>Qualifiziert</h3><span class="badge">Top 4 je Gruppe</span></div>
+    <div id="qualified" class="qualified-grid"></div>
+
+    <div class="section-title"><h3>Gesamtablauf Gruppenphase</h3><span class="badge">A / B im Wechsel</span></div>
+    <div id="scheduleCombined" class="matches"></div>
+
+    <div class="section-title"><h3>Viertelfinale</h3></div>
+    <div id="quarterfinals" class="final-grid"></div>
+
+    <div class="section-title"><h3>Halbfinale</h3></div>
+    <div id="semifinals" class="final-grid"></div>
+
+    <div class="section-title"><h3>Platz 3 & Finale</h3></div>
+    <div id="finals" class="final-grid"></div>
+  </article>
+</section>
+
+<footer>
+  <div id="status" class="status">Bitte Spreadsheet-ID eintragen und speichern.</div>
+</footer>
+
+<script>
+const STORAGE_KEY = 'tsv_wieblingen_elfmeterturnier_config';
+let refreshTimer = null;
+
+function getConfig(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  return raw ? JSON.parse(raw) : {spreadsheetId:'', teamsSheet:'Teams', matchesSheet:'Spiele', finalSheet:'Finalrunde', refreshSeconds:15};
+}
+function setConfigForm(cfg){
+  document.getElementById('spreadsheetId').value = cfg.spreadsheetId || '';
+  document.getElementById('teamsSheet').value = cfg.teamsSheet || 'Teams';
+  document.getElementById('matchesSheet').value = cfg.matchesSheet || 'Spiele';
+  document.getElementById('finalSheet').value = cfg.finalSheet || 'Finalrunde';
+  document.getElementById('refreshSeconds').value = cfg.refreshSeconds || 15;
+}
+function saveConfig(){
+  const cfg = {
+    spreadsheetId: document.getElementById('spreadsheetId').value.trim(),
+    teamsSheet: document.getElementById('teamsSheet').value.trim() || 'Teams',
+    matchesSheet: document.getElementById('matchesSheet').value.trim() || 'Spiele',
+    finalSheet: document.getElementById('finalSheet').value.trim() || 'Finalrunde',
+    refreshSeconds: Math.max(5, Number(document.getElementById('refreshSeconds').value || 15))
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg));
+  startRefresh();
+  loadAll();
+}
+function fillDefaults(){
+  setConfigForm({spreadsheetId:'', teamsSheet:'Teams', matchesSheet:'Spiele', finalSheet:'Finalrunde', refreshSeconds:15});
+}
+function toggleSetup(){
+  document.getElementById('setup').classList.toggle('hidden');
+}
+function setStatus(text){
+  document.getElementById('status').textContent = text;
+}
+function buildUrl(spreadsheetId, sheetName){
+  return `https://docs.google.com/spreadsheets/d/${encodeURIComponent(spreadsheetId)}/gviz/tq?sheet=${encodeURIComponent(sheetName)}&tqx=out:json`;
+}
+function cellValue(cell){
+  if(!cell) return '';
+  if(cell.f !== undefined && (cell.v === null || cell.v === undefined) && cell.f !== null) return String(cell.f);
+  if(cell.f !== undefined && cell.v !== null && cell.v !== undefined){
+    if(typeof cell.v === 'string') return cell.v;
+  }
+  if(cell.f !== undefined && cell.f !== null && cell.v === '') return String(cell.f);
+  if(cell.f !== undefined && cell.f !== null && cell.v == null && cell.f) return String(cell.f);
+  if(cell.f !== undefined && cell.f !== null && cell.v !== null && typeof cell.v !== 'number' && cell.f) return String(cell.f);
+  if(cell.f !== undefined && cell.f !== null && cell.v !== null && typeof cell.v === 'number') return cell.v;
+  if(cell.f !== undefined && cell.f !== null && cell.v !== null) return cell.v;
+  return cell.v ?? '';
+}
+function cellDisplay(cell){
+  if(!cell) return '';
+  return cell.f ?? cell.v ?? '';
+}
+async function fetchSheet(spreadsheetId, sheetName){
+  const url = buildUrl(spreadsheetId, sheetName);
+  const res = await fetch(url);
+  if(!res.ok) throw new Error(`HTTP ${res.status} bei ${sheetName}`);
+  const txt = await res.text();
+  const start = txt.indexOf('{');
+  const end = txt.lastIndexOf('}');
+  const data = JSON.parse(txt.slice(start, end + 1));
+  const rows = (data.table.rows || []).map(r => r.c || []);
+  return rows;
+}
+function normalizeTeams(rows){
+  const teams = {A:{}, B:{}};
+  rows.forEach(r => {
+    const group = String(cellDisplay(r[0]) || '').trim().toUpperCase();
+    const slot = Number(cellValue(r[1]));
+    const name = String(cellDisplay(r[2]) || '').trim();
+    if((group === 'A' || group === 'B') && slot) teams[group][slot] = name || `${group}${slot}`;
+  });
+  return teams;
+}
+function normalizeMatches(rows){
+  return rows.map(r => ({
+    group: String(cellDisplay(r[0]) || '').trim().toUpperCase(),
+    matchNo: Number(cellValue(r[1]) || 0),
+    round: Number(cellValue(r[2]) || 0),
+    homeSlot: Number(cellValue(r[3]) || 0),
+    awaySlot: Number(cellValue(r[4]) || 0),
+    homeGoals: r[5] && cellValue(r[5]) !== '' ? Number(cellValue(r[5])) : null,
+    awayGoals: r[6] && cellValue(r[6]) !== '' ? Number(cellValue(r[6])) : null,
+  })).filter(m => (m.group === 'A' || m.group === 'B') && m.matchNo && m.homeSlot && m.awaySlot);
+}
+function computeTable(teamMap, matches){
+  const rows = Object.keys(teamMap)
+    .sort((a,b) => Number(a) - Number(b))
+    .map(slot => ({slot:Number(slot), team:teamMap[slot], sp:0,s:0,u:0,n:0,gf:0,ga:0,td:0,pkt:0}));
+  const bySlot = Object.fromEntries(rows.map(r => [r.slot, r]));
+  matches.forEach(m => {
+    if(m.homeGoals == null || m.awayGoals == null || Number.isNaN(m.homeGoals) || Number.isNaN(m.awayGoals)) return;
+    const h = bySlot[m.homeSlot], a = bySlot[m.awaySlot];
+    if(!h || !a) return;
+    h.sp++; a.sp++;
+    h.gf += m.homeGoals; h.ga += m.awayGoals;
+    a.gf += m.awayGoals; a.ga += m.homeGoals;
+    if(m.homeGoals > m.awayGoals){ h.s++; a.n++; h.pkt += 3; }
+    else if(m.awayGoals > m.homeGoals){ a.s++; h.n++; a.pkt += 3; }
+    else { h.u++; a.u++; h.pkt += 1; a.pkt += 1; }
+  });
+  rows.forEach(r => r.td = r.gf - r.ga);
+  rows.sort((x,y) => y.pkt - x.pkt || y.td - x.td || y.gf - x.gf || x.team.localeCompare(y.team,'de'));
+  return rows;
+}
+function renderTable(elId, rows){
+  document.getElementById(elId).innerHTML = `
+    <table>
+      <thead><tr><th class="rank">#</th><th>Team</th><th>Sp</th><th>TD</th><th>Tore</th><th>Pkt</th></tr></thead>
+      <tbody>
+        ${rows.map((r,i) => `<tr><td class="rank">${i+1}</td><td>${escapeHtml(r.team)}</td><td>${r.sp}</td><td>${r.td}</td><td>${r.gf}</td><td class="points">${r.pkt}</td></tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+function winnerName(home, hg, ag, away){
+  if(hg == null || ag == null || Number.isNaN(hg) || Number.isNaN(ag)) return '';
+  if(hg > ag) return home;
+  if(ag > hg) return away;
+  return 'Stechen nötig';
+}
+function scoreText(hg, ag){
+  if(hg == null || ag == null || Number.isNaN(hg) || Number.isNaN(ag)) return '<span class="muted">- : -</span>';
+  return `${hg} : ${ag}`;
+}
+function renderGroupMatches(elId, groupLabel, teamMap, matches){
+  const html = matches
+    .sort((a,b) => a.matchNo - b.matchNo)
+    .map(m => {
+      const home = teamMap[m.homeSlot] || `Platz ${m.homeSlot}`;
+      const away = teamMap[m.awaySlot] || `Platz ${m.awaySlot}`;
+      const winner = winnerName(home, m.homeGoals, m.awayGoals, away);
+      return `
+        <div class="match">
+          <div class="match-head"><span>Gruppe ${groupLabel} · Spiel ${m.matchNo}</span><span>Runde ${m.round}</span></div>
+          <div class="teams-row"><div>${escapeHtml(home)}</div><div class="score">${scoreText(m.homeGoals,m.awayGoals)}</div><div class="team-right">${escapeHtml(away)}</div></div>
+          <div class="winner">${winner ? 'Führend / Sieger: ' + escapeHtml(winner) : ''}</div>
+        </div>`;
+    }).join('');
+  document.getElementById(elId).innerHTML = html || '<div class="muted">Keine Spiele gefunden.</div>';
+}
+function interleaveMatches(matchesA, matchesB, teamsA, teamsB){
+  const a = [...matchesA].sort((x,y)=>x.matchNo-y.matchNo);
+  const b = [...matchesB].sort((x,y)=>x.matchNo-y.matchNo);
+  const out = [];
+  const len = Math.max(a.length, b.length);
+  for(let i=0;i<len;i++){
+    if(a[i]) out.push({group:'A', data:a[i], teams:teamsA});
+    if(b[i]) out.push({group:'B', data:b[i], teams:teamsB});
+  }
+  return out;
+}
+function renderCombinedSchedule(matchesA, matchesB, teamsA, teamsB){
+  const combined = interleaveMatches(matchesA, matchesB, teamsA, teamsB);
+  const html = combined.map((entry, idx) => {
+    const m = entry.data;
+    const home = entry.teams[m.homeSlot] || `Platz ${m.homeSlot}`;
+    const away = entry.teams[m.awaySlot] || `Platz ${m.awaySlot}`;
+    return `
+      <div class="match">
+        <div class="match-head"><span>Lauf ${idx+1}</span><span>Gruppe ${entry.group} · Runde ${m.round}</span></div>
+        <div class="teams-row"><div>${escapeHtml(home)}</div><div class="score">${scoreText(m.homeGoals,m.awayGoals)}</div><div class="team-right">${escapeHtml(away)}</div></div>
+      </div>`;
+  }).join('');
+  document.getElementById('scheduleCombined').innerHTML = html || '<div class="muted">Keine Gruppenspiele gefunden.</div>';
+}
+function normalizeFinals(rows){
+  return rows.map((r, idx) => ({
+    row: idx + 1,
+    phase: String(cellDisplay(r[0]) || '').trim(),
+    game: String(cellDisplay(r[1]) || '').trim(),
+    home: String(cellDisplay(r[2]) || '').trim(),
+    away: String(cellDisplay(r[3]) || '').trim(),
+    homeGoals: r[4] && cellValue(r[4]) !== '' ? Number(cellValue(r[4])) : null,
+    awayGoals: r[5] && cellValue(r[5]) !== '' ? Number(cellValue(r[5])) : null,
+    winner: String(cellDisplay(r[6]) || '').trim(),
+    loser: String(cellDisplay(r[7]) || '').trim(),
+  })).filter(x => x.phase || x.game || x.home || x.away);
+}
+function renderQualified(tableA, tableB){
+  const seeds = [
+    ['A1', tableA[0]?.team || ''], ['A2', tableA[1]?.team || ''], ['A3', tableA[2]?.team || ''], ['A4', tableA[3]?.team || ''],
+    ['B1', tableB[0]?.team || ''], ['B2', tableB[1]?.team || ''], ['B3', tableB[2]?.team || ''], ['B4', tableB[3]?.team || '']
+  ];
+  document.getElementById('qualified').innerHTML = seeds.map(([label,team]) => `
+    <div class="seed"><div class="seed-label">${label}</div><div class="seed-team">${escapeHtml(team)}</div></div>
+  `).join('');
+}
+function renderFinalBlock(elId, list){
+  const html = list.map(item => `
+    <div class="match">
+      <div class="match-head"><span>${escapeHtml(item.phase)}</span><span>${escapeHtml(item.game)}</span></div>
+      <div class="teams-row"><div>${escapeHtml(item.home || '-')}</div><div class="score">${scoreText(item.homeGoals,item.awayGoals)}</div><div class="team-right">${escapeHtml(item.away || '-')}</div></div>
+      <div class="winner">${item.winner ? 'Sieger: ' + escapeHtml(item.winner) : ''}</div>
+    </div>
+  `).join('');
+  document.getElementById(elId).innerHTML = html || '<div class="muted">Keine Spiele gefunden.</div>';
+}
+function escapeHtml(str){
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+const AUTO_SCROLL_SPEED = 0.5;
+let let 
+function pause  }
+['wheel','touchstart','keydown','mousedown'].forEach(eventName => {
+  window.addEventListener(eventName, () => pause});
+
+function startRefresh(){
+  
+}
+
+// Start Auto-Scroll
+
+// Leertaste = Pause / Weiter
+document.addEventListener("keydown", function(e) {
+  if (e.code === "Space") {
+    e.preventDefault();
+    isScrolling = !isScrolling;
+  }
+});
+</script>
+
+</body>
+</html>
